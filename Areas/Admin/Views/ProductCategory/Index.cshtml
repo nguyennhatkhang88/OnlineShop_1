@@ -1,0 +1,68 @@
+﻿
+@model PagedList.IPagedList<Model.EF.ProductCategory>
+@using PagedList.Mvc
+@{ 
+    ViewBag.Title = "Quản lý danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section jsFooter{
+    <script src="/assets/admin/js/controller/Usercontroller.js"></script>
+}
+@section header{
+    Quản lý danh mục
+}
+@using (Html.BeginForm("Index", "ProductCategory", FormMethod.Get))
+{
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <div class="col-md-4">
+                <input type="text" value="@ViewBag.SearchString" class="form-control" name="Seachstring" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success">Tìm kiếm</button>
+                <a class="btn btn-primary" href="/Admin/ProductCategory/Create">Thêm mới</a>
+            </div>
+        </div>
+    </div>
+}
+
+<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>MetaTitle</th>
+            <th>DisplayOrder</th>
+            <th>Trạng thái</th>
+            <th>#</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="row_@item.ID">
+
+                <td>@item.Name</td>
+                <td>@item.MetaTitle</td>
+                <td>@item.DisplayOrder</td>
+                <td> <a href="#" class="btn-active" data-id="@item.ID">@(item.Status? "Kích hoạt":"Khóa") </a></td>
+                <td id="row_@item.ID">
+                    <a href="/Admin/ProductCategory/Edit/@item.ID">Sửa</a>
+                    |
+                    @Ajax.ActionLink("Xóa", "Delete", new { @id = item.ID }, new AjaxOptions
+                    {
+                    Confirm = "Bạn muốn xóa bản ghi này không",
+                        @*Xóa bản ghi trên giao diện*@
+OnComplete = "$('#row_" + @item.ID + "').remove()",
+
+HttpMethod = "Delete"
+
+})
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+</table>
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, @Seachstring = ViewBag.SearchString }))
+
